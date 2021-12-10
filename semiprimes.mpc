@@ -1,0 +1,49 @@
+program.use_edabit(True)
+
+#Public parameters
+field_bits = 254
+N_bits = 126
+no_of_players = 2
+
+D = -4
+s_a = 23200685
+s_b = 289158
+S = s_a**2 + abs(D)*s_b**2
+
+#Reading secret values
+a1_0 = sint.get_random_int(N_bits//12)
+b1_0 = sint.get_random_int(N_bits//12)
+a2_0 = sint.get_random_int(N_bits//12)
+b2_0 = sint.get_random_int(N_bits//12)
+
+a1_1 = sint.get_random_int(N_bits//12)
+b1_1 = sint.get_random_int(N_bits//12)
+a2_1 = sint.get_random_int(N_bits//12)
+b2_1 = sint.get_random_int(N_bits//12)
+
+a1 = a1_0 + a1_1
+b1 = b1_0 + b1_1
+a2 = a2_0 + a2_1
+b2 = b2_0 + b2_1
+
+pa = s_a*a1 + D*s_b*b1
+pb = s_a*b1 + s_b*a1
+
+qa = s_a*a2 + D*s_b*b2
+qb = s_a*b2 + s_b*a2
+
+for bit1 in [-1,1]:
+        for bit2 in [-1,1]:
+                p = pa*pa + abs(D)*pb*pb + 1 + bit1*2*pa
+                q = qa*qa + abs(D)*qb*qb + 1 + bit2*2*qa
+                N = p*q
+                print_ln("%s", N.reveal())
+
+k = (a1*a1 + abs(D)*b1*b1)*(a2*a2+abs(D)*b2*b2)
+
+#I simulate additive secret sharing among players
+K = [sint.get_random_int(field_bits) for i in range(no_of_players-1)]
+K += [k-sum(K)]
+
+for player in range(no_of_players):
+        K[player].reveal_to(player)
